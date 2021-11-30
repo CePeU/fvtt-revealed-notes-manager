@@ -1,53 +1,27 @@
-![](https://img.shields.io/badge/Foundry-v0.7.9-informational)
-<!--- Downloads @ Latest Badge -->
-<!--- replace <user>/<repo> with your username/repository -->
-<!--- ![Latest Release Download Count](https://img.shields.io/github/downloads/<user>/<repo>/latest/module.zip) -->
+#Introduction 
 
-<!--- Forge Bazaar Install % Badge -->
-<!--- replace <your-module-name> with the `name` in your manifest -->
-<!--- ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2F<your-module-name>&colorB=4aa94a) -->
+This module provides an option to have a 'revealed' state on scene Notes.
 
+When enabled, then the 'revealed' state will be used to determine if the Note is visible to players.
 
-# How to use this Template to create a versioned Release
+(The default Foundry VTT behaviour is for Notes to be visible to players only if the linked document is accessible by the player.)
 
-1. Open your repository's releases page.
+There is an option to set the tint colour of the Note icon to indicate if the linked document is reachable or not (if the Note has no linked document, then it will always be displayed in the "unreachable" tint).
 
-![Where to click to open repository releases.](https://user-images.githubusercontent.com/7644614/93409301-9fd25080-f864-11ea-9e0c-bdd09e4418e4.png)
+# Use - Note Configuration Panel
 
-2. Click "Draft a new release"
+Two new options appear in the Note configuration panel (select the Notes layer, and double right-click on a note to open the configuration panel).
 
-![Draft a new release button.](https://user-images.githubusercontent.com/7644614/93409364-c1333c80-f864-11ea-89f1-abfcb18a8d9f.png)
+**Use Reveal State** will enable the Note to be managed by this module.
 
-3. Fill out the release version as the tag name.
+**Revealed to Players** will indicate whether this Note is visible to players or not.
 
-## <span color="red">Do not prefix your tag name with a `v`.</span>
+# Use - Module Settings
 
-If you want to add details at this stage you can, or you can always come back later and edit them.
+The Module Settings window provides two configurable parameters:
 
-![Release Creation Form](https://user-images.githubusercontent.com/7644614/93409543-225b1000-f865-11ea-9a19-f1906a724421.png)
+**Note Tint Colour when linked** is used to tint the Note icon when the Note's linked document is reachable by the player (reachable means that the player has at least LIMITED permission on the linked document).
 
-4. Hit submit.
+**Note Tint Colour when not linked** is used to tint the Note icon when either the Note has no linked document, or the linked document is not reachable.
 
-5. Wait a few minutes.
-
-A Github Action will run to populate the `module.json` and `module.zip` with the correct urls that you can then use to distribute this release. You can check on its status in the "Actions" tab.
-
-![Actions Tab](https://user-images.githubusercontent.com/7644614/93409820-c1800780-f865-11ea-8c6b-c3792e35e0c8.png)
-
-6. Grab the module.json url from the release's details page.
-
-![image](https://user-images.githubusercontent.com/7644614/93409960-10c63800-f866-11ea-83f6-270cc5d10b71.png)
-
-This `module.json` will only ever point at this release's `module.zip`, making it useful for sharing a specific version for compatibility purposes.
-
-7. You can use the url `https://github.com/<user>/<repo>/releases/latest/download/module.json` to refer to the manifest.
-
-This is the url you want to use to install the module typically, as it will get updated automatically.
-
-
-# FoundryVTT Module
-
-Does something, probably
-
-## Changelog
-
+*(There are other modules which allow Notes to be created without being linked to a document.)*

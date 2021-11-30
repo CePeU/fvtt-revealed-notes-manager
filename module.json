@@ -1,33 +1,26 @@
 {
-  "name": "module",
-  "title": "New Module",
-  "description": "",
+  "name": "revealed-notes-manager",
+  "title": "Revealed Notes Manager",
+  "description": "This module adds an optional 'revealed' state to each scene Note. This allows a Note to be displayed to players even if the linked document is not revealed to the player, in which case it will appear as a non-connected Note.",
   "version": "This is auto replaced",
   "library": "false",
   "manifestPlusVersion": "1.0.0",
-  "minimumCoreVersion": "0.7.9",
-  "compatibleCoreVersion": "0.7.9",
-  "authors": [
-    {
-      "name": "The League of Extraordinary FVTT Developers",
-      "url": "https://github.com/League-of-Foundry-Developers",
-      "discord": "discordID#0001"
-    }
-  ],
-  "dependencies": [
-
-  ],
-  "conflicts": [
-    
-  ],
+	"minimumCoreVersion": "0.8.6",
+	"compatibleCoreVersion": "9",
+	"authors": [
+		{
+			"name": "Farling",
+			"url": "https://github.com/farling42",
+			"email": "foundryvtt@amusingtime.uk",
+			"discord": "Farling#9579",
+			"ko-fi": "farling",
+			"patreon": "amusingtime",
+			"twitter": "@shambles42"
+		}
+	],
   "esmodules": [
-    "/scripts/module.js"
-  ],
-  "scripts": [
-    "/scripts/lib/lib.js"
-  ],
-  "styles": [
-    "/styles/module.css"
+    "/scripts/hide-unreachable-notes.mjs"
+	"scripts/libwrapper-shim.js",
   ],
   "languages": [
     {
@@ -39,10 +32,4 @@
   "url": "This is auto replaced",
   "manifest": "This is auto replaced",
   "download": "This is auto replaced",
-  "media": [
-    {
-      "type": "icon",
-      "url": "https://avatars2.githubusercontent.com/u/71292812?s=400&u=ccdb4eeb7abf551ca8f314e5a9bfd0479a4d3d41&v=4"
-    }
-  ]
 }
