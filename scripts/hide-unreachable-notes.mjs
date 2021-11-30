@@ -129,6 +129,7 @@ function refresh () {
 }
 
 Hooks.once('init', () => {
+	globalThis.setNoteRevealed = setNoteRevealed;
     game.settings.register(MODULE_NAME, CONFIG_TINT_REACHABLE_LINK, {
 		name: "Note Tint Colour when linked",
 		hint: "For players, the RGB value to be used to tint scene Notes if they have a reachable link (if left blank then the tint, if any, will remain unchanged).  For GMs, this is the initial Icon Tint set during import",
