@@ -25,3 +25,8 @@ The Module Settings window provides two configurable parameters:
 **Note Tint Colour when not linked** is used to tint the Note icon when either the Note has no linked document, or the linked document is not reachable.
 
 *(There are other modules which allow Notes to be created without being linked to a document.)*
+
+## Support
+
+If you like what it does, then all contributions will be gratefully received at [Kofi](https://ko-fi.com/farling) or [Paypal](https://paypal.me/farling)
+or if you're feeling really generous you could set up a regular contribution at [Patreon](https://www.patreon.com/amusingtime) 
