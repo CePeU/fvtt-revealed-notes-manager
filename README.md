@@ -1,4 +1,6 @@
-#Introduction 
+![Latest Release Download Count](https://img.shields.io/github/downloads/farling42/fvtt-revealed-notes-manager/latest/module.zip)
+
+# Introduction 
 
 This module provides an option to have a 'revealed' state on scene Notes.
 
