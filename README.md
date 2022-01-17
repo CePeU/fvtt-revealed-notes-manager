@@ -31,7 +31,7 @@ The Module Settings window provides two configurable parameters:
 
 **Note Tint Colour when not linked** is used to tint the Note icon when either the Note has no linked document, or the linked document is not reachable.
 
-*(There are other modules which allow Notes to be created without being linked to a document.)*
+*(You can create notes that are not linked to journal entries using another of my modules: https://github.com/farling42/fvtt-one-click-note-creation.)*
 
 ## Support
 
