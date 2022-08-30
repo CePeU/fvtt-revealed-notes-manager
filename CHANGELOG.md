@@ -1,3 +1,7 @@
+## 2.1
+
+Fix problem with Notes never appearing to players.
+
 ## 2.0
 
 Update module.json for Foundry 10 compatibility.
