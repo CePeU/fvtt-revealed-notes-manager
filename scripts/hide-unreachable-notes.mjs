@@ -34,7 +34,7 @@ function Note_refresh(wrapped, ...args) {
 }
 
 /**
- * Wraps the default Note#_drawControlIcon so that we can override the stored this.data.iconTint based
+ * Wraps the default Note#_drawControlIcon so that we can override the stored icon tint based
  * on whether the link is accessible for the current player (or not). This is only done for links which
  * are using the "revealed" flag.
  * @param {function} [wrapped] The wrapper function provided by libWrapper
@@ -49,7 +49,7 @@ function Note_drawControlIcon(wrapped, ...args) {
 	if (value != undefined) {
 		const is_linked = this.entry?.testUserPermission(game.user, "LIMITED");
 		const colour = game.settings.get(MODULE_NAME, is_linked ? CONFIG_TINT_REACHABLE_LINK : CONFIG_TINT_UNREACHABLE_LINK);
-		if (colour?.length > 0) this.data.iconTint = colour;
+		if (colour?.length > 0) this.document.texture.tint = colour;
 	}
 	return wrapped(...args);
 }
