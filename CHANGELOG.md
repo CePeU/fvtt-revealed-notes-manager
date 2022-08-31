@@ -1,3 +1,7 @@
+## 2.1.1
+
+Update minimum compatible version to V10
+
 ## 2.1
 
 Fix problem with Notes never appearing to players.
