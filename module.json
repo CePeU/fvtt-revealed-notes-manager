@@ -3,15 +3,14 @@
   "id": "revealed-notes-manager",
   "title": "Revealed Notes Manager",
   "description": "This module adds an optional 'revealed' state to each scene Note. This allows a Note to be displayed to players even if the linked document is not revealed to the player, in which case it will appear as a non-connected Note.",
-  "version": "1.0",
+  "version": "2.2",
   "library": "false",
   "manifestPlusVersion": "1.0.0",
 	"minimumCoreVersion": "10",
 	"compatibleCoreVersion": "10",
 	"compatibility": {
 		"minimum" : "10",
-		"verified": "10.273",
-		"maximum" : "10"
+		"verified": "10.283"
 	},
   "author": "Farling",
 	"authors": [

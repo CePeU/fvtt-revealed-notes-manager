@@ -13,24 +13,33 @@ const CONFIG_TINT_REACHABLE_LINK   = "tintReachableLink";
 const CONFIG_TINT_UNREACHABLE_LINK = "tintUnreachableLink";
 
 /**
- * Wraps the default Note#refresh to allow the visibility of scene Notes to be controlled by the reveal
+ * Wraps the default Note#isVisible to allow the visibility of scene Notes to be controlled by the reveal
  * state stored in the Note (overriding the default visibility which is based on link accessibility).
  * @param {function} [wrapped] The wrapper function provided by libWrapper
  * @param {Object}   [args]    The arguments for Note#refresh
  * @return [Note]    This Note
  */
-function Note_refresh(wrapped, ...args) {
-	let result = wrapped(...args);
-	const use_reveal = result.document.getFlag(MODULE_NAME, USE_PIN_REVEALED);
-	if (use_reveal === undefined || !use_reveal) return result;
-	
-	const value = result.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
-	// Use the revealed state as the visibility of the Note.
-	// If the linked topic is not visible to the player then clicking will do nothing.
-	if (value != undefined) {
-		result.visible  = value;
-	}
-	return result;
+function Note_isVisible(wrapped, ...args) {
+/*
+We only want to change the check of testUserPermission here
+Note#isVisible()
+    const accessTest = this.page ? this.page : this.entry;
+    const access = accessTest?.testUserPermission(game.user, "LIMITED") ?? true;
+    if ( (access === false) || !canvas.effects.visibility.tokenVision || this.document.global ) return access;
+    const point = {x: this.document.x, y: this.document.y};
+    const tolerance = this.document.iconSize / 4;
+    return canvas.effects.visibility.testVisibility(point, {tolerance, object: this});
+*/	
+	// See if reveal state is enabled for this note.
+	if (!this.document.getFlag(MODULE_NAME, USE_PIN_REVEALED)) return wrapped(...args);
+
+	// Replace the testUserPermission test of Note#isVisible
+	const access = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
+	// Standard version of Note#isVisible
+    if ( (access === false) || !canvas.effects.visibility.tokenVision || this.document.global ) return access;
+    const point = {x: this.document.x, y: this.document.y};
+    const tolerance = this.document.iconSize / 4;
+    return canvas.effects.visibility.testVisibility(point, {tolerance, object: this});
 }
 
 /**
@@ -42,8 +51,7 @@ function Note_refresh(wrapped, ...args) {
  * @return [Note]    This Note
  */
 function Note_drawControlIcon(wrapped, ...args) {
-	const use_reveal = this.document.getFlag(MODULE_NAME, USE_PIN_REVEALED);
-	if (use_reveal === undefined || !use_reveal) return wrapped(...args);
+	if (!this.document.getFlag(MODULE_NAME, USE_PIN_REVEALED)) return wrapped(...args);
 	
 	const value = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
 	if (value != undefined) {
@@ -70,10 +78,10 @@ export function setNoteRevealed(notedata,visible) {
 	if (tint?.length > 0) notedata.iconTint = tint;
 }
 
-Hooks.once('canvasInit', () => {
+Hooks.once('ready', () => {
 	// This is only required for Players, not GMs (game.user accessible from 'ready' event but not 'init' event)
 	if (!game.user.isGM) {
-		libWrapper.register(MODULE_NAME, 'Note.prototype.refresh',          Note_refresh,         libWrapper.WRAPPER);
+		libWrapper.register(MODULE_NAME, 'Note.prototype.isVisible',        Note_isVisible,       libWrapper.MIXED);
 		libWrapper.register(MODULE_NAME, 'Note.prototype._drawControlIcon', Note_drawControlIcon, libWrapper.WRAPPER);
 	}
 })

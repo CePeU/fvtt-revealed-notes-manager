@@ -1,3 +1,7 @@
+## 2.2
+
+Use Note#isVisible as the control mechanism for visibility to players.
+
 ## 2.1.1
 
 Update minimum compatible version to V10
