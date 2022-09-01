@@ -11,6 +11,8 @@ const FLAG_IS_REVEALED  = `flags.${MODULE_NAME}.${PIN_IS_REVEALED}`;
 const FLAG_USE_REVEALED = `flags.${MODULE_NAME}.${USE_PIN_REVEALED}`;
 const CONFIG_TINT_REACHABLE_LINK   = "tintReachableLink";
 const CONFIG_TINT_UNREACHABLE_LINK = "tintUnreachableLink";
+const CONFIG_TINT_UNREVEALED = "tintUnrevealed";
+const CONFIG_TINT_REVEALED   = "tintRevealed";
 
 /**
  * Wraps the default Note#isVisible to allow the visibility of scene Notes to be controlled by the reveal
@@ -55,8 +57,20 @@ function Note_drawControlIcon(wrapped, ...args) {
 	
 	const value = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
 	if (value != undefined) {
-		const is_linked = this.entry?.testUserPermission(game.user, "LIMITED");
+		const is_linked = this.entry?.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED);
 		const colour = game.settings.get(MODULE_NAME, is_linked ? CONFIG_TINT_REACHABLE_LINK : CONFIG_TINT_UNREACHABLE_LINK);
+		if (colour?.length > 0) this.document.texture.tint = colour;
+	}
+	return wrapped(...args);
+}
+
+// Replacement for Note#_drawControlIcon for GMs, to show which pins are revealed.
+function Note_drawControlIconGM(wrapped, ...args) {
+	if (!this.document.getFlag(MODULE_NAME, USE_PIN_REVEALED)) return wrapped(...args);
+	
+	const is_revealed = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
+	if (is_revealed != undefined) {
+		const colour = game.settings.get(MODULE_NAME, is_revealed ? CONFIG_TINT_REVEALED : CONFIG_TINT_UNREVEALED);
 		if (colour?.length > 0) this.document.texture.tint = colour;
 	}
 	return wrapped(...args);
@@ -78,11 +92,13 @@ export function setNoteRevealed(notedata,visible) {
 	if (tint?.length > 0) notedata.iconTint = tint;
 }
 
-Hooks.once('ready', () => {
+Hooks.once('canvasInit', () => {
 	// This is only required for Players, not GMs (game.user accessible from 'ready' event but not 'init' event)
 	if (!game.user.isGM) {
 		libWrapper.register(MODULE_NAME, 'Note.prototype.isVisible',        Note_isVisible,       libWrapper.MIXED);
 		libWrapper.register(MODULE_NAME, 'Note.prototype._drawControlIcon', Note_drawControlIcon, libWrapper.WRAPPER);
+	} else {
+		libWrapper.register(MODULE_NAME, 'Note.prototype._drawControlIcon', Note_drawControlIconGM, libWrapper.WRAPPER);
 	}
 })
 
@@ -126,6 +142,14 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
 	name   = `${MODULE_NAME}.${CONFIG_TINT_UNREACHABLE_LINK}`;
 	colour = game.settings.get(MODULE_NAME, CONFIG_TINT_UNREACHABLE_LINK);
 	$('<input>').attr('type', 'color').attr('data-edit', name).val(colour).insertAfter($(`input[name="${name}"]`, html).addClass('color'));
+	
+	name   = `${MODULE_NAME}.${CONFIG_TINT_REVEALED}`;
+	colour = game.settings.get(MODULE_NAME, CONFIG_TINT_REVEALED);
+	$('<input>').attr('type', 'color').attr('data-edit', name).val(colour).insertAfter($(`input[name="${name}"]`, html).addClass('color'));
+	
+	name   = `${MODULE_NAME}.${CONFIG_TINT_UNREVEALED}`;
+	colour = game.settings.get(MODULE_NAME, CONFIG_TINT_UNREVEALED);
+	$('<input>').attr('type', 'color').attr('data-edit', name).val(colour).insertAfter($(`input[name="${name}"]`, html).addClass('color'));
 })
 
 function refresh () {
@@ -139,8 +163,8 @@ function refresh () {
 Hooks.once('init', () => {
 	globalThis.setNoteRevealed = setNoteRevealed;
     game.settings.register(MODULE_NAME, CONFIG_TINT_REACHABLE_LINK, {
-		name: "Note Tint Colour when linked",
-		hint: "For players, the RGB value to be used to tint scene Notes if they have a reachable link (if left blank then the tint, if any, will remain unchanged).  For GMs, this is the initial Icon Tint set during import",
+		name: "Linked Icon Tint",
+		hint: "For PLAYERs, the RGB value to be used to tint scene Notes if they have a reachable link (if left blank then the tint, if any, will remain unchanged).",
 		scope: "world",
 		type:  String,
 		default: '#7CFC00',
@@ -148,11 +172,29 @@ Hooks.once('init', () => {
 		onChange: () => refresh()
 	});
     game.settings.register(MODULE_NAME, CONFIG_TINT_UNREACHABLE_LINK, {
-		name: "Note Tint Colour when not linked",
-		hint: "For players, the RGB value to be used to tint scene Notes if they do not have a reachable link (if left blank then the tint, if any, will remain unchanged).  For GMs, this is the initial Icon Tint set during import",
+		name: "Not-linked Icon Tint",
+		hint: "For PLAYERs, the RGB value to be used to tint scene Notes if they do not have a reachable link (if left blank then the tint, if any, will remain unchanged).",
 		scope: "world",
 		type:  String,
 		default: '#c000c0',
+		config: true,
+		onChange: () => refresh()
+	});
+    game.settings.register(MODULE_NAME, CONFIG_TINT_REVEALED, {
+		name: "Revealed Icon Tint",
+		hint: "For GMs, the RGB value to be used to tint scene Notes if they have been revealed to players (if left blank then the tint, if any, will remain unchanged)",
+		scope: "world",
+		type:  String,
+		default: '#ffff00',
+		config: true,
+		onChange: () => refresh()
+	});
+    game.settings.register(MODULE_NAME, CONFIG_TINT_UNREVEALED, {
+		name: "Not-revealed Icon Tint",
+		hint: "For GMs, the RGB value to be used to tint scene Notes if they have not been revealed to players (if left blank then the tint, if any, will remain unchanged)",
+		scope: "world",
+		type:  String,
+		default: '#ff0000',
 		config: true,
 		onChange: () => refresh()
 	});

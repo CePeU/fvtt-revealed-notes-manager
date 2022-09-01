@@ -1,3 +1,7 @@
+## 2.3
+
+Provide tint colours to allow GMs to see if notes have been revealed to players. Setting the tint to a blank string will remove this tinting.
+
 ## 2.2
 
 Use Note#isVisible as the control mechanism for visibility to players.
