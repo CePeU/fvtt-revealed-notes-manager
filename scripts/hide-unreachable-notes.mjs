@@ -52,16 +52,23 @@ Note#isVisible()
  * @param {Object}   [args]    The arguments for Note#_drawControlIcon
  * @return [Note]    This Note
  */
+
 function Note_drawControlIcon(wrapped, ...args) {
 	if (!this.document.getFlag(MODULE_NAME, USE_PIN_REVEALED)) return wrapped(...args);
 	
 	const value = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
-	if (value != undefined) {
-		const is_linked = this.entry?.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED);
-		const colour = game.settings.get(MODULE_NAME, is_linked ? CONFIG_TINT_REACHABLE_LINK : CONFIG_TINT_UNREACHABLE_LINK);
-		if (colour?.length > 0) this.document.texture.tint = colour;
-	}
-	return wrapped(...args);
+	if (value == undefined) return wrapped(...args);
+
+	const is_linked = this.entry?.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED);
+	const colour = game.settings.get(MODULE_NAME, is_linked ? CONFIG_TINT_REACHABLE_LINK : CONFIG_TINT_UNREACHABLE_LINK);
+	if (!colour?.length) return wrapped(...args);
+	
+	// Temporarily set the icon tint
+	const saved = this.document.texture.tint;
+	this.document.texture.tint = colour;
+	const result = wrapped(...args);
+	this.document.texture.tint = saved;
+	return result;
 }
 
 // Replacement for Note#_drawControlIcon for GMs, to show which pins are revealed.
@@ -69,11 +76,17 @@ function Note_drawControlIconGM(wrapped, ...args) {
 	if (!this.document.getFlag(MODULE_NAME, USE_PIN_REVEALED)) return wrapped(...args);
 	
 	const is_revealed = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
-	if (is_revealed != undefined) {
-		const colour = game.settings.get(MODULE_NAME, is_revealed ? CONFIG_TINT_REVEALED : CONFIG_TINT_UNREVEALED);
-		if (colour?.length > 0) this.document.texture.tint = colour;
-	}
-	return wrapped(...args);
+	if (is_revealed == undefined) return wrapped(...args);
+
+	const colour = game.settings.get(MODULE_NAME, is_revealed ? CONFIG_TINT_REVEALED : CONFIG_TINT_UNREVEALED);
+	if (!colour?.length) return wrapped(...args);
+	
+	// Temporarily set the icon tint
+	const saved = this.document.texture.tint;
+	this.document.texture.tint = colour;
+	const result = wrapped(...args);
+	this.document.texture.tint = saved;
+	return result;
 }
 
 /**

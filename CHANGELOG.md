@@ -1,3 +1,7 @@
+## 2.4
+
+Change the way that Notes are drawn so that this module's tint colour is not permanently stored in the Note, so that the Note's original tint can be used when a specific icon tint is not set by this module.
+
 ## 2.3
 
 Provide tint colours to allow GMs to see if notes have been revealed to players. Setting the tint to a blank string will remove this tinting.
