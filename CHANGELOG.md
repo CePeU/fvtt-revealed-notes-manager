@@ -1,3 +1,7 @@
+## 2.4.1
+
+Don't set the Note's icon tint in setNoteRevealed.
+
 ## 2.4
 
 Change the way that Notes are drawn so that this module's tint colour is not permanently stored in the Note, so that the Note's original tint can be used when a specific icon tint is not set by this module.

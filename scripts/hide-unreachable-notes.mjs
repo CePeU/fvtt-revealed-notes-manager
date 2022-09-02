@@ -100,9 +100,6 @@ export function setNoteRevealed(notedata,visible) {
 	// notedata might not exist as a Note, so setFlag is not available
 	setProperty(notedata, FLAG_USE_REVEALED, true);
 	setProperty(notedata, FLAG_IS_REVEALED,  visible);
-	// Default tint based on GM view
-	let tint = game.settings.get(MODULE_NAME, notedata.entryId ? CONFIG_TINT_REACHABLE_LINK : CONFIG_TINT_UNREACHABLE_LINK);
-	if (tint?.length > 0) notedata.iconTint = tint;
 }
 
 Hooks.once('canvasInit', () => {
