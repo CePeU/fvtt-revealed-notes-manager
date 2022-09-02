@@ -30,6 +30,14 @@ The Module Settings window provides some configurable parameters:
 - two icon tint values so that Players can see if the Note is linked to a document
 - two icon tint values so that GMs can see if the Note has been revealed to players
 
+## Module Developers
+
+A function is exported which allows a Note to be marked as using the Revealed state management.
+
+```
+setNoteRevealed(notedata,visible)
+```
+
 ## Support
 
 If you like what it does, then all contributions will be gratefully received at [Kofi](https://ko-fi.com/farling) or [Paypal](https://paypal.me/farling)
