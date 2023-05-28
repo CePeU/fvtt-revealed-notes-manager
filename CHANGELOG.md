@@ -1,3 +1,7 @@
+## 2.4.2
+
+- Mark compatible with Foundry 11 (299)
+
 ## 2.4.1
 
 Don't set the Note's icon tint in setNoteRevealed.
