@@ -89,6 +89,16 @@ function Note_drawControlIconGM(wrapped, ...args) {
 	return result;
 }
 
+function Note_onUpdate(wrapper, data, options, userId) {
+// Foundry V11: Note#_onUpdate needs to set refreshText render flag
+	let result = wrapper(data, options, userId);
+	if (this.renderFlags && /*getProperty(data, NOTE_FLAG)*/ data?.flags[MODULE_NAME]) {
+		// Ensure everything is redrawn - since icon colour might change, not just visibility
+		this.renderFlags.set({redraw: true})
+	}
+	return result;
+}
+
 /**
  * Sets whether this Note is revealed (visible) to players; overriding the default FoundryVTT rules.
  * The iconTint will also be set on the Note based on whether there is a link that the player can access.
@@ -110,6 +120,7 @@ Hooks.once('canvasInit', () => {
 	} else {
 		libWrapper.register(MODULE_NAME, 'Note.prototype._drawControlIcon', Note_drawControlIconGM, libWrapper.WRAPPER);
 	}
+	libWrapper.register(MODULE_NAME, 'Note.prototype._onUpdate', Note_onUpdate, libWrapper.WRAPPER);
 })
 
 //

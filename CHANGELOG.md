@@ -1,3 +1,7 @@
+## 2.4.3
+
+- Foundry V11: Get modifications to a Note's revealed state to immediately update on all player's screens too.
+
 ## 2.4.2
 
 - Mark compatible with Foundry 11 (299)
