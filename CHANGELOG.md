@@ -1,3 +1,7 @@
+## 2.4.4
+
+- Prevent error when a field not related to this module is updated in the Note Config Dialog.
+
 ## 2.4.3
 
 - Foundry V11: Get modifications to a Note's revealed state to immediately update on all player's screens too.

@@ -89,10 +89,10 @@ function Note_drawControlIconGM(wrapped, ...args) {
 	return result;
 }
 
-function Note_onUpdate(wrapper, data, options, userId) {
+function Note_onUpdate(wrapper, changed, options, userId) {
 // Foundry V11: Note#_onUpdate needs to set refreshText render flag
-	let result = wrapper(data, options, userId);
-	if (this.renderFlags && /*getProperty(data, NOTE_FLAG)*/ data?.flags[MODULE_NAME]) {
+	let result = wrapper(changed, options, userId);
+	if (this.renderFlags && changed?.flags?.[MODULE_NAME]) {
 		// Ensure everything is redrawn - since icon colour might change, not just visibility
 		this.renderFlags.set({redraw: true})
 	}
