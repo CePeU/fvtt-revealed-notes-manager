@@ -38,10 +38,11 @@ Note#isVisible()
 	// Replace the testUserPermission test of Note#isVisible
 	const access = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
 	// Standard version of Note#isVisible
-    if ( (access === false) || !canvas.effects.visibility.tokenVision || this.document.global ) return access;
+  const visibility = canvas.visibility ?? canvas.effects.visibility;
+    if ( (access === false) || !visibility.tokenVision || this.document.global ) return access;
     const point = {x: this.document.x, y: this.document.y};
     const tolerance = this.document.iconSize / 4;
-    return canvas.effects.visibility.testVisibility(point, {tolerance, object: this});
+    return visibility.testVisibility(point, {tolerance, object: this});
 }
 
 /**
