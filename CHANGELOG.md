@@ -1,3 +1,7 @@
+## 2.5.0
+
+- Ensure compatible with Foundry V12 with no compatibility warnings.
+
 ## 2.4.4
 
 - Prevent error when a field not related to this module is updated in the Note Config Dialog.
