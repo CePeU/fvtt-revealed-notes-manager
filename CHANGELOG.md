@@ -1,3 +1,7 @@
+## 2.5.1
+
+- Mark as NOT compatible with Foundry V13.
+
 ## 2.5.0
 
 - Ensure compatible with Foundry V12 with no compatibility warnings.
