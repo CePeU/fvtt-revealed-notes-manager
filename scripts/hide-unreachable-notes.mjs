@@ -22,27 +22,17 @@ const CONFIG_TINT_REVEALED   = "tintRevealed";
  * @return [Note]    This Note
  */
 function Note_isVisible(wrapped, ...args) {
-/*
-We only want to change the check of testUserPermission here
-Note#isVisible()
-    const accessTest = this.page ? this.page : this.entry;
-    const access = accessTest?.testUserPermission(game.user, "LIMITED") ?? true;
-    if ( (access === false) || !canvas.effects.visibility.tokenVision || this.document.global ) return access;
-    const point = {x: this.document.x, y: this.document.y};
-    const tolerance = this.document.iconSize / 4;
-    return canvas.effects.visibility.testVisibility(point, {tolerance, object: this});
-*/	
+	
 	// See if reveal state is enabled for this note.
 	if (!this.document.getFlag(MODULE_NAME, USE_PIN_REVEALED)) return wrapped(...args);
 
 	// Replace the testUserPermission test of Note#isVisible
 	const access = this.document.getFlag(MODULE_NAME, PIN_IS_REVEALED);
 	// Standard version of Note#isVisible
-  const visibility = canvas.visibility ?? canvas.effects.visibility;
-    if ( (access === false) || !visibility.tokenVision || this.document.global ) return access;
-    const point = {x: this.document.x, y: this.document.y};
-    const tolerance = this.document.iconSize / 4;
-    return visibility.testVisibility(point, {tolerance, object: this});
+  if ( (access === false) || !canvas.visibility.tokenVision || this.document.global ) return access;
+  const point = {x: this.document.x, y: this.document.y};
+  const tolerance = this.document.iconSize / 4;
+  return canvas.visibility.testVisibility(point, {tolerance, object: this});
 }
 
 /**
@@ -62,7 +52,7 @@ function Note_drawControlIcon(wrapped, ...args) {
 
 	const is_linked = this.entry?.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED);
 	const colour = game.settings.get(MODULE_NAME, is_linked ? CONFIG_TINT_REACHABLE_LINK : CONFIG_TINT_UNREACHABLE_LINK);
-	if (!colour?.length) return wrapped(...args);
+	if (!colour?.valid) return wrapped(...args);
 	
 	// Temporarily set the icon tint
 	const saved = this.document.texture.tint;
@@ -80,7 +70,7 @@ function Note_drawControlIconGM(wrapped, ...args) {
 	if (is_revealed == undefined) return wrapped(...args);
 
 	const colour = game.settings.get(MODULE_NAME, is_revealed ? CONFIG_TINT_REVEALED : CONFIG_TINT_UNREVEALED);
-	if (!colour?.length) return wrapped(...args);
+	if (!colour?.valid) return wrapped(...args);
 	
 	// Temporarily set the icon tint
 	const saved = this.document.texture.tint;
@@ -109,19 +99,19 @@ function Note_onUpdate(wrapper, changed, options, userId) {
  */
 export function setNoteRevealed(notedata,visible) {
 	// notedata might not exist as a Note, so setFlag is not available
-	setProperty(notedata, FLAG_USE_REVEALED, true);
-	setProperty(notedata, FLAG_IS_REVEALED,  visible);
+	foundry.utils.setProperty(notedata, FLAG_USE_REVEALED, true);
+	foundry.utils.setProperty(notedata, FLAG_IS_REVEALED,  visible);
 }
 
 Hooks.once('canvasInit', () => {
 	// This is only required for Players, not GMs (game.user accessible from 'ready' event but not 'init' event)
 	if (!game.user.isGM) {
-		libWrapper.register(MODULE_NAME, 'Note.prototype.isVisible',        Note_isVisible,       libWrapper.MIXED);
-		libWrapper.register(MODULE_NAME, 'Note.prototype._drawControlIcon', Note_drawControlIcon, libWrapper.WRAPPER);
+		libWrapper.register(MODULE_NAME, 'CONFIG.Note.objectClass.prototype.isVisible',        Note_isVisible,       libWrapper.MIXED);
+		libWrapper.register(MODULE_NAME, 'CONFIG.Note.objectClass.prototype._drawControlIcon', Note_drawControlIcon, libWrapper.WRAPPER);
 	} else {
-		libWrapper.register(MODULE_NAME, 'Note.prototype._drawControlIcon', Note_drawControlIconGM, libWrapper.WRAPPER);
+		libWrapper.register(MODULE_NAME, 'CONFIG.Note.objectClass.prototype._drawControlIcon', Note_drawControlIconGM, libWrapper.WRAPPER);
 	}
-	libWrapper.register(MODULE_NAME, 'Note.prototype._onUpdate', Note_onUpdate, libWrapper.WRAPPER);
+	libWrapper.register(MODULE_NAME, 'CONFIG.Note.objectClass.prototype._onUpdate', Note_onUpdate, libWrapper.WRAPPER);
 })
 
 //
@@ -132,53 +122,45 @@ Hooks.once('canvasInit', () => {
  * Update Note config window with a text box to allow entry of GM-text.
  * Also replace single-line of "Text Label" with a textarea to allow multi-line text.
  * @param {NoteConfig} app    The Application instance being rendered (NoteConfig)
- * @param {jQuery} html       The inner HTML of the document that will be displayed and may be modified
- * @param {object] data       The object of data used when rendering the application (from NoteConfig#getData)
+ * @param {HTMLElement} html  The inner HTML of the document that will be displayed and may be modified
+ * @param {Object} data       The object of data used when rendering the application (from NoteConfig#getData)
  */
 Hooks.on("renderNoteConfig", async function (app, html, data) {
-	// Check box to control use of REVEALED state
-	let checked = (data.document.getFlag(MODULE_NAME, PIN_IS_REVEALED) ?? true) ? "checked" : "";
-	let revealed_control = $(`<div class='form-group'><label>Revealed to Players</label><div class='form-fields'><input type='checkbox' name='${FLAG_IS_REVEALED}' ${checked}></div></div>`)
-	html.find("select[name='entryId']").parent().parent().after(revealed_control);
-	
-	// Check box for REVEALED state
-	let use_reveal = (data.document.getFlag(MODULE_NAME, USE_PIN_REVEALED) ?? false) ? "checked" : "";
-	let mode_control = $(`<div class='form-group'><label>Use Reveal State</label><div class='form-fields'><input type='checkbox' name='${FLAG_USE_REVEALED}' ${use_reveal}></div></div>`)
-	html.find("select[name='entryId']").parent().parent().after(mode_control);
-	
-	// Force a recalculation of the height
-	if (!app._minimized) {
-		let pos = app.position;
-		pos.height = 'auto'
-		app.setPosition(pos);
-	}
-})
 
-Hooks.on("renderSettingsConfig", (app, html, data) => {
-	// Add colour pickers to the Configure Game Settings: Module Settings menu
-	let name,colour;
-	name   = `${MODULE_NAME}.${CONFIG_TINT_REACHABLE_LINK}`;
-	colour = game.settings.get(MODULE_NAME, CONFIG_TINT_REACHABLE_LINK);
-	$('<input>').attr('type', 'color').attr('data-edit', name).val(colour).insertAfter($(`input[name="${name}"]`, html).addClass('color'));
-	
-	name   = `${MODULE_NAME}.${CONFIG_TINT_UNREACHABLE_LINK}`;
-	colour = game.settings.get(MODULE_NAME, CONFIG_TINT_UNREACHABLE_LINK);
-	$('<input>').attr('type', 'color').attr('data-edit', name).val(colour).insertAfter($(`input[name="${name}"]`, html).addClass('color'));
-	
-	name   = `${MODULE_NAME}.${CONFIG_TINT_REVEALED}`;
-	colour = game.settings.get(MODULE_NAME, CONFIG_TINT_REVEALED);
-	$('<input>').attr('type', 'color').attr('data-edit', name).val(colour).insertAfter($(`input[name="${name}"]`, html).addClass('color'));
-	
-	name   = `${MODULE_NAME}.${CONFIG_TINT_UNREVEALED}`;
-	colour = game.settings.get(MODULE_NAME, CONFIG_TINT_UNREVEALED);
-	$('<input>').attr('type', 'color').attr('data-edit', name).val(colour).insertAfter($(`input[name="${name}"]`, html).addClass('color'));
+	// Check box to control use of REVEALED state
+
+  const note = data.document;
+
+  const fieldset = document.createElement("fieldset");
+  const legend = document.createElement("legend");
+  legend.innerText = "Revealed State";
+
+  // Pseudo-datafield for our entry inside the document's flags.
+  const flags = new foundry.data.fields.ObjectField({label: "module-flags"}, {parent: data.fields.flags, name: MODULE_NAME});
+
+  const mode_control = (new foundry.data.fields.BooleanField(
+    {
+      label: "Use Reveal State",
+      initial: (note.getFlag(MODULE_NAME, USE_PIN_REVEALED) ?? false) },
+    { parent: flags, name: USE_PIN_REVEALED })).toFormGroup();
+  const revealed_control = (new foundry.data.fields.BooleanField(
+    {
+      label: "Revealed to Players",
+      initial: (note.getFlag(MODULE_NAME, PIN_IS_REVEALED) ?? true) },
+    { parent: flags, name: PIN_IS_REVEALED })).toFormGroup();
+
+  fieldset.append(legend);
+  fieldset.append(mode_control);
+	fieldset.append(revealed_control);
+
+  const body = app.element.querySelector("div.form-body");
+  body.append(fieldset);
 })
 
 function refresh () {
 	if (canvas?.ready) {
 		console.warn('NOTES:refresh called');
 		canvas.notes.placeables.forEach(note => note.draw());
-		//for (let note of canvas.notes.objects) note.draw();
 	}
 }
 
@@ -188,8 +170,7 @@ Hooks.once('init', () => {
 		name: "Linked Icon Tint",
 		hint: "For PLAYERs, the RGB value to be used to tint scene Notes if they have a reachable link (if left blank then the tint, if any, will remain unchanged).",
 		scope: "world",
-		type:  String,
-		default: '#7CFC00',
+		type:  new foundry.data.fields.ColorField({initial: '#7CFC00'}),
 		config: true,
 		onChange: () => refresh()
 	});
@@ -197,8 +178,7 @@ Hooks.once('init', () => {
 		name: "Not-linked Icon Tint",
 		hint: "For PLAYERs, the RGB value to be used to tint scene Notes if they do not have a reachable link (if left blank then the tint, if any, will remain unchanged).",
 		scope: "world",
-		type:  String,
-		default: '#c000c0',
+		type:  new foundry.data.fields.ColorField({initial: '#c000c0'}),
 		config: true,
 		onChange: () => refresh()
 	});
@@ -206,8 +186,7 @@ Hooks.once('init', () => {
 		name: "Revealed Icon Tint",
 		hint: "For GMs, the RGB value to be used to tint scene Notes if they have been revealed to players (if left blank then the tint, if any, will remain unchanged)",
 		scope: "world",
-		type:  String,
-		default: '#ffff00',
+		type:  new foundry.data.fields.ColorField({initial: '#ffff00'}),
 		config: true,
 		onChange: () => refresh()
 	});
@@ -215,8 +194,7 @@ Hooks.once('init', () => {
 		name: "Not-revealed Icon Tint",
 		hint: "For GMs, the RGB value to be used to tint scene Notes if they have not been revealed to players (if left blank then the tint, if any, will remain unchanged)",
 		scope: "world",
-		type:  String,
-		default: '#ff0000',
+		type:  new foundry.data.fields.ColorField({initial: '#ff0000'}),
 		config: true,
 		onChange: () => refresh()
 	});

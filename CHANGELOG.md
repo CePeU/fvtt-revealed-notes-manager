@@ -1,3 +1,7 @@
+## 3.0.0
+
+- Working in Foundry V13 only.
+
 ## 2.5.1
 
 - Mark as NOT compatible with Foundry V13.
